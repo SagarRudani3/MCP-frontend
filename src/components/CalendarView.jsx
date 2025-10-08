@@ -8,8 +8,7 @@ import GoogleSignInButton from "./GoogleSignInButton";
 
 const localizer = momentLocalizer(moment);
 
-const API_URL =
-  "https://mcp-backend-s0np.onrender.com" || "http://localhost:3000";
+const API_URL = "http://localhost:3000";
 export default function CalendarView() {
   const entityId = "default_user";
   const [events, setEvents] = useState([]);
@@ -74,6 +73,7 @@ export default function CalendarView() {
   // Transform Google Calendar events to react-big-calendar format
   const calendarEvents = useMemo(() => {
     return events.map((event) => {
+      console.log("%c Line:76 🧀 event", "color:#42b983", event);
       const startDate = event.start?.dateTime || event.start?.date;
       const endDate = event.end?.dateTime || event.end?.date;
 
@@ -82,11 +82,11 @@ export default function CalendarView() {
         title: event.summary || "Untitled Event",
         start: new Date(startDate),
         end: new Date(endDate),
-        allDay: !event.start?.dateTime, // All day if no time specified
+        allDay: !event.start?.dateTime,
         resource: {
           description: event.description,
           location: event.location,
-          htmlLink: event.htmlLink,
+          htmlLink: event?.hangoutLink || event?.location,
         },
       };
     });
@@ -194,8 +194,13 @@ export default function CalendarView() {
                     popup
                     selectable
                     onSelectEvent={(event) => {
-                      if (event.resource?.htmlLink) {
-                        window.open(event.resource.htmlLink, "_blank");
+                      console.log(
+                        "%c Line:196 🍋 event",
+                        "color:#7f2b82",
+                        event
+                      );
+                      if (event?.resource?.htmlLink) {
+                        window.open(event?.resource?.htmlLink, "_blank");
                       }
                     }}
                   />
