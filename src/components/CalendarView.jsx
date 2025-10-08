@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Calendar as BigCalendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { Calendar, RefreshCw, AlertCircle } from "lucide-react";
+import { Calendar, RefreshCw, AlertCircle, Filter, X } from "lucide-react";
 import ConnectedAccounts from "./ConnectedAccounts";
 import GoogleSignInButton from "./GoogleSignInButton";
 
@@ -10,26 +10,44 @@ const localizer = momentLocalizer(moment);
 
 const API_URL =
   "https://mcp-backend-s0np.onrender.com" || "http://localhost:3000";
+
 export default function CalendarView() {
-  const entityId = "default_user";
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [connectedAccountId, setConnectedAccountId] = useState(null);
+  const [entityId, setEntityId] = useState("default_user");
+
+  // Filter parameters
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [maxResults, setMaxResults] = useState(50);
+  const [showFilters, setShowFilters] = useState(false);
 
   const fetchEvents = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      console.log(
-        "[CalendarView] Fetching events with connectedAccountId:",
-        connectedAccountId
-      );
+      // Build query parameters
+      const params = new URLSearchParams({
+        entityId,
+        connectedAccountId,
+      });
+
+      if (startDate) {
+        params.append("startDate", startDate);
+      }
+      if (endDate) {
+        params.append("endDate", endDate);
+      }
+      if (maxResults) {
+        params.append("maxResults", maxResults.toString());
+      }
 
       const response = await fetch(
-        `${API_URL}/api/calendar/events?entityId=${entityId}&connectedAccountId=${connectedAccountId}`
+        `${API_URL}/api/calendar/events?${params.toString()}`
       );
 
       if (!response.ok) {
@@ -50,19 +68,44 @@ export default function CalendarView() {
   };
 
   const handleConnectionChange = ({ connections, connectedAccountId }) => {
-    console.log("%c Line:53 🍔 connections", "color:#4fff4B", connections);
-    console.log(
-      "%c Line:53 🍯 connectedAccountId",
-      "color:#7f2b82",
-      connectedAccountId
-    );
-    setIsConnected(connections[0]?.id);
-    setConnectedAccountId(connections[0]?.id);
+    setIsConnected(!!connectedAccountId);
+    setConnectedAccountId(connectedAccountId);
 
     if (!connectedAccountId) {
       setEvents([]);
     }
   };
+
+  // Check for existing connection on mount
+  useEffect(() => {
+    const checkConnection = async () => {
+      try {
+        const response = await fetch(
+          `${API_URL}/api/composio/connectedAccounts?entityId=${entityId}`
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          const connections = data.connections || [];
+
+          const activeConnection = connections.find(
+            (conn) =>
+              conn.status === "ACTIVE" &&
+              conn.appName?.toLowerCase().includes("google")
+          );
+
+          if (activeConnection) {
+            setIsConnected(true);
+            setConnectedAccountId(activeConnection.id);
+          }
+        }
+      } catch (err) {
+        console.error("[CalendarView] Error checking connection:", err);
+      }
+    };
+
+    checkConnection();
+  }, []);
 
   // Fetch events when connectedAccountId changes
   useEffect(() => {
@@ -74,7 +117,6 @@ export default function CalendarView() {
   // Transform Google Calendar events to react-big-calendar format
   const calendarEvents = useMemo(() => {
     return events.map((event) => {
-      console.log("%c Line:76 🧀 event", "color:#42b983", event);
       const startDate = event.start?.dateTime || event.start?.date;
       const endDate = event.end?.dateTime || event.end?.date;
 
@@ -132,39 +174,122 @@ export default function CalendarView() {
         </header>
 
         <div className="space-y-6">
-          <ConnectedAccounts
-            entityId={entityId}
-            onConnectionChange={handleConnectionChange}
-          />
-
           {!isConnected ? (
             <div className="bg-white rounded-lg shadow-md p-8 text-center">
               <AlertCircle className="w-12 h-12 text-blue-500 mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                Connect Your Google Account
+                Welcome to Google Calendar
               </h2>
               <p className="text-gray-600 mb-6">
-                Sign in with Google to access your calendar events
+                Sign in with Google to view and manage your calendar events
               </p>
               <GoogleSignInButton entityId={entityId} />
             </div>
           ) : (
+            <>
+              <ConnectedAccounts
+                entityId={entityId}
+                onConnectionChange={handleConnectionChange}
+              />
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">
                   Your Calendar
                 </h2>
-                <button
-                  onClick={fetchEvents}
-                  disabled={loading}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
-                >
-                  <RefreshCw
-                    className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
-                  />
-                  {loading ? "Loading..." : "Refresh"}
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                  >
+                    {showFilters ? (
+                      <>
+                        <X className="w-4 h-4" />
+                        Hide Filters
+                      </>
+                    ) : (
+                      <>
+                        <Filter className="w-4 h-4" />
+                        Filters
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={fetchEvents}
+                    disabled={loading}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    <RefreshCw
+                      className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+                    />
+                    {loading ? "Loading..." : "Refresh"}
+                  </button>
+                </div>
               </div>
+
+              {showFilters && (
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                    Filter Events
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Start Date
+                      </label>
+                      <input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        End Date
+                      </label>
+                      <input
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Max Results
+                      </label>
+                      <input
+                        type="number"
+                        value={maxResults}
+                        onChange={(e) => setMaxResults(parseInt(e.target.value) || 50)}
+                        min="1"
+                        max="500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 mt-4">
+                    <button
+                      onClick={fetchEvents}
+                      disabled={loading}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                    >
+                      Apply Filters
+                    </button>
+                    <button
+                      onClick={() => {
+                        setStartDate("");
+                        setEndDate("");
+                        setMaxResults(50);
+                        fetchEvents();
+                      }}
+                      className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors"
+                    >
+                      Clear Filters
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {error && (
                 <div className="mb-4 text-red-600 bg-red-50 px-4 py-3 rounded-lg flex items-center gap-2">
@@ -195,11 +320,6 @@ export default function CalendarView() {
                     popup
                     selectable
                     onSelectEvent={(event) => {
-                      console.log(
-                        "%c Line:196 🍋 event",
-                        "color:#7f2b82",
-                        event
-                      );
                       if (event?.resource?.htmlLink) {
                         window.open(event?.resource?.htmlLink, "_blank");
                       }
@@ -208,6 +328,7 @@ export default function CalendarView() {
                 </div>
               )}
             </div>
+            </>
           )}
         </div>
       </div>

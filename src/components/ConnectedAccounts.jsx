@@ -30,7 +30,6 @@ export default function ConnectedAccounts({
       }
 
       const data = await response.json();
-      console.log("[ConnectedAccounts] Connections:", data.connections);
 
       const connections = data.connections || [];
       setConnections(connections);
