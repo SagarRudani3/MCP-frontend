@@ -32,10 +32,21 @@ export default function ConnectedAccounts({
       const data = await response.json();
       console.log("[ConnectedAccounts] Connections:", data.connections);
 
-      setConnections(data.connections || []);
+      const connections = data.connections || [];
+      setConnections(connections);
 
       if (onConnectionChange) {
-        onConnectionChange(data.connections || []);
+        // Find the active Google connection
+        const activeConnection = connections.find(
+          (conn) =>
+            conn.status === "ACTIVE" &&
+            conn.appName?.toLowerCase().includes("google")
+        );
+
+        onConnectionChange({
+          connections,
+          connectedAccountId: activeConnection?.id || null,
+        });
       }
     } catch (err) {
       console.error("[ConnectedAccounts] Error:", err);
@@ -114,7 +125,7 @@ export default function ConnectedAccounts({
         </div>
       )}
 
-      {connections.length === 0 ? (
+      {connections?.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           <p>No connected accounts</p>
           <p className="text-sm mt-2">
@@ -123,7 +134,7 @@ export default function ConnectedAccounts({
         </div>
       ) : (
         <div className="space-y-3">
-          {connections.map((connection) => (
+          {connections?.map((connection) => (
             <div
               key={connection.id}
               className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors"

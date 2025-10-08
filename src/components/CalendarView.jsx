@@ -10,23 +10,26 @@ const localizer = momentLocalizer(moment);
 
 const API_URL =
   "https://mcp-backend-s0np.onrender.com" || "http://localhost:3000";
-
 export default function CalendarView() {
   const entityId = "default_user";
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [connectedAccountId, setConnectedAccountId] = useState(null);
 
   const fetchEvents = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      console.log("[CalendarView] Fetching events...");
+      console.log(
+        "[CalendarView] Fetching events with connectedAccountId:",
+        connectedAccountId
+      );
 
       const response = await fetch(
-        `${API_URL}/api/calendar/events?entityId=${entityId}`
+        `${API_URL}/api/calendar/events?entityId=${entityId}&connectedAccountId=${connectedAccountId}`
       );
 
       if (!response.ok) {
@@ -46,20 +49,27 @@ export default function CalendarView() {
     }
   };
 
-  const handleConnectionChange = (connections) => {
-    const hasActiveConnection = connections.some(
-      (conn) =>
-        conn.status === "ACTIVE" &&
-        conn.appName?.toLowerCase().includes("google")
+  const handleConnectionChange = ({ connections, connectedAccountId }) => {
+    console.log("%c Line:53 🍔 connections", "color:#4fff4B", connections);
+    console.log(
+      "%c Line:53 🍯 connectedAccountId",
+      "color:#7f2b82",
+      connectedAccountId
     );
-    setIsConnected(hasActiveConnection);
+    setIsConnected(connections[0]?.id);
+    setConnectedAccountId(connections[0]?.id);
 
-    if (hasActiveConnection) {
-      fetchEvents();
-    } else {
+    if (!connectedAccountId) {
       setEvents([]);
     }
   };
+
+  // Fetch events when connectedAccountId changes
+  useEffect(() => {
+    if (connectedAccountId) {
+      fetchEvents();
+    }
+  }, [connectedAccountId]);
 
   // Transform Google Calendar events to react-big-calendar format
   const calendarEvents = useMemo(() => {
