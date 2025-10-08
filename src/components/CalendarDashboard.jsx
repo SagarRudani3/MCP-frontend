@@ -3,7 +3,7 @@ import { Calendar, Clock, RefreshCw, AlertCircle } from 'lucide-react';
 import ConnectedAccounts from './ConnectedAccounts';
 import GoogleSignInButton from './GoogleSignInButton';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL || 'https://mcp-backend-s0np.onrender.com';
 
 export default function CalendarDashboard() {
   const entityId = 'default_user';
