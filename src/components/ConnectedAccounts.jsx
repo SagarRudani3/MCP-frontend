@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { RefreshCw, Trash2, CheckCircle, XCircle } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL || 'https://mcp-backend-s0np.onrender.com';
 
 export default function ConnectedAccounts({ entityId = 'default_user', onConnectionChange }) {
   const [connections, setConnections] = useState([]);
