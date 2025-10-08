@@ -8,7 +8,8 @@ import GoogleSignInButton from "./GoogleSignInButton";
 
 const localizer = momentLocalizer(moment);
 
-const API_URL = "http://localhost:3000";
+const API_URL =
+  "https://mcp-backend-s0np.onrender.com" || "http://localhost:3000";
 export default function CalendarView() {
   const entityId = "default_user";
   const [events, setEvents] = useState([]);
