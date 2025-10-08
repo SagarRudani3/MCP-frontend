@@ -35,16 +35,9 @@ export default function ConnectedAccounts({
       setConnections(connections);
 
       if (onConnectionChange) {
-        // Find the active Google connection
-        const activeConnection = connections.find(
-          (conn) =>
-            conn.status === "ACTIVE" &&
-            conn.appName?.toLowerCase().includes("google")
-        );
-
         onConnectionChange({
           connections,
-          connectedAccountId: activeConnection?.id || null,
+          connectedAccountId: connections[0]?.id || null,
         });
       }
     } catch (err) {

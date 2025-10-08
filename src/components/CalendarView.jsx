@@ -68,6 +68,11 @@ export default function CalendarView() {
   };
 
   const handleConnectionChange = ({ connections, connectedAccountId }) => {
+    console.log(
+      "%c Line:70 🍌 connectedAccountId",
+      "color:#7f2b82",
+      connectedAccountId
+    );
     setIsConnected(!!connectedAccountId);
     setConnectedAccountId(connectedAccountId);
 
@@ -84,20 +89,14 @@ export default function CalendarView() {
           `${API_URL}/api/composio/connectedAccounts?entityId=${entityId}`
         );
 
+        console.log("%c Line:88 🍉 response", "color:#ffdd4d", response);
         if (response.ok) {
           const data = await response.json();
+          console.log("%c Line:89 🍕 data", "color:#7f2b82", data);
           const connections = data.connections || [];
 
-          const activeConnection = connections.find(
-            (conn) =>
-              conn.status === "ACTIVE" &&
-              conn.appName?.toLowerCase().includes("google")
-          );
-
-          if (activeConnection) {
-            setIsConnected(true);
-            setConnectedAccountId(activeConnection.id);
-          }
+          setIsConnected(true);
+          setConnectedAccountId(connections[0]?.id);
         }
       } catch (err) {
         console.error("[CalendarView] Error checking connection:", err);
@@ -191,143 +190,147 @@ export default function CalendarView() {
                 entityId={entityId}
                 onConnectionChange={handleConnectionChange}
               />
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">
-                  Your Calendar
-                </h2>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setShowFilters(!showFilters)}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
-                  >
-                    {showFilters ? (
-                      <>
-                        <X className="w-4 h-4" />
-                        Hide Filters
-                      </>
-                    ) : (
-                      <>
-                        <Filter className="w-4 h-4" />
-                        Filters
-                      </>
-                    )}
-                  </button>
-                  <button
-                    onClick={fetchEvents}
-                    disabled={loading}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
-                  >
-                    <RefreshCw
-                      className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
-                    />
-                    {loading ? "Loading..." : "Refresh"}
-                  </button>
-                </div>
-              </div>
-
-              {showFilters && (
-                <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                    Filter Events
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Start Date
-                      </label>
-                      <input
-                        type="date"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        End Date
-                      </label>
-                      <input
-                        type="date"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Max Results
-                      </label>
-                      <input
-                        type="number"
-                        value={maxResults}
-                        onChange={(e) => setMaxResults(parseInt(e.target.value) || 50)}
-                        min="1"
-                        max="500"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 mt-4">
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    Your Calendar
+                  </h2>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setShowFilters(!showFilters)}
+                      className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                    >
+                      {showFilters ? (
+                        <>
+                          <X className="w-4 h-4" />
+                          Hide Filters
+                        </>
+                      ) : (
+                        <>
+                          <Filter className="w-4 h-4" />
+                          Filters
+                        </>
+                      )}
+                    </button>
                     <button
                       onClick={fetchEvents}
                       disabled={loading}
                       className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
                     >
-                      Apply Filters
-                    </button>
-                    <button
-                      onClick={() => {
-                        setStartDate("");
-                        setEndDate("");
-                        setMaxResults(50);
-                        fetchEvents();
-                      }}
-                      className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors"
-                    >
-                      Clear Filters
+                      <RefreshCw
+                        className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+                      />
+                      {loading ? "Loading..." : "Refresh"}
                     </button>
                   </div>
                 </div>
-              )}
 
-              {error && (
-                <div className="mb-4 text-red-600 bg-red-50 px-4 py-3 rounded-lg flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5" />
-                  <span>Error: {error}</span>
-                </div>
-              )}
+                {showFilters && (
+                  <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                      Filter Events
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Start Date
+                        </label>
+                        <input
+                          type="date"
+                          value={startDate}
+                          onChange={(e) => setStartDate(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          End Date
+                        </label>
+                        <input
+                          type="date"
+                          value={endDate}
+                          onChange={(e) => setEndDate(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Max Results
+                        </label>
+                        <input
+                          type="number"
+                          value={maxResults}
+                          onChange={(e) =>
+                            setMaxResults(parseInt(e.target.value) || 50)
+                          }
+                          min="1"
+                          max="500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 mt-4">
+                      <button
+                        onClick={fetchEvents}
+                        disabled={loading}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                      >
+                        Apply Filters
+                      </button>
+                      <button
+                        onClick={() => {
+                          setStartDate("");
+                          setEndDate("");
+                          setMaxResults(50);
+                          fetchEvents();
+                        }}
+                        className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors"
+                      >
+                        Clear Filters
+                      </button>
+                    </div>
+                  </div>
+                )}
 
-              {loading && events.length === 0 ? (
-                <div className="flex items-center justify-center py-12">
-                  <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
-                  <span className="ml-3 text-gray-600">Loading events...</span>
-                </div>
-              ) : (
-                <div className="h-[700px]">
-                  <BigCalendar
-                    localizer={localizer}
-                    events={calendarEvents}
-                    startAccessor="start"
-                    endAccessor="end"
-                    style={{ height: "100%" }}
-                    eventPropGetter={eventStyleGetter}
-                    components={{
-                      event: EventComponent,
-                    }}
-                    views={["month", "week", "day", "agenda"]}
-                    defaultView="month"
-                    popup
-                    selectable
-                    onSelectEvent={(event) => {
-                      if (event?.resource?.htmlLink) {
-                        window.open(event?.resource?.htmlLink, "_blank");
-                      }
-                    }}
-                  />
-                </div>
-              )}
-            </div>
+                {error && (
+                  <div className="mb-4 text-red-600 bg-red-50 px-4 py-3 rounded-lg flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5" />
+                    <span>Error: {error}</span>
+                  </div>
+                )}
+
+                {loading && events.length === 0 ? (
+                  <div className="flex items-center justify-center py-12">
+                    <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
+                    <span className="ml-3 text-gray-600">
+                      Loading events...
+                    </span>
+                  </div>
+                ) : (
+                  <div className="h-[700px]">
+                    <BigCalendar
+                      localizer={localizer}
+                      events={calendarEvents}
+                      startAccessor="start"
+                      endAccessor="end"
+                      style={{ height: "100%" }}
+                      eventPropGetter={eventStyleGetter}
+                      components={{
+                        event: EventComponent,
+                      }}
+                      views={["month", "week", "day", "agenda"]}
+                      defaultView="month"
+                      popup
+                      selectable
+                      onSelectEvent={(event) => {
+                        if (event?.resource?.htmlLink) {
+                          window.open(event?.resource?.htmlLink, "_blank");
+                        }
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
             </>
           )}
         </div>
