@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
-import { Calendar, Clock, RefreshCw, AlertCircle } from 'lucide-react';
-import ConnectedAccounts from './ConnectedAccounts';
-import GoogleSignInButton from './GoogleSignInButton';
+import { useState, useEffect } from "react";
+import { Calendar, Clock, RefreshCw, AlertCircle } from "lucide-react";
+import ConnectedAccounts from "./ConnectedAccounts";
+import GoogleSignInButton from "./GoogleSignInButton";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL =
+  "https://mcp-backend-s0np.onrender.com" || "http://localhost:3000";
 
 export default function CalendarDashboard() {
-  const entityId = 'default_user';
+  const entityId = "default_user";
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -17,7 +18,7 @@ export default function CalendarDashboard() {
       setLoading(true);
       setError(null);
 
-      console.log('[CalendarDashboard] Fetching events...');
+      console.log("[CalendarDashboard] Fetching events...");
 
       const response = await fetch(
         `${API_URL}/api/calendar/events?entityId=${entityId}`
@@ -25,15 +26,15 @@ export default function CalendarDashboard() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch events');
+        throw new Error(errorData.message || "Failed to fetch events");
       }
 
       const data = await response.json();
-      console.log('[CalendarDashboard] Events:', data.events);
+      console.log("[CalendarDashboard] Events:", data.events);
 
       setEvents(data.events || []);
     } catch (err) {
-      console.error('[CalendarDashboard] Error:', err);
+      console.error("[CalendarDashboard] Error:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -42,7 +43,9 @@ export default function CalendarDashboard() {
 
   const handleConnectionChange = (connections) => {
     const hasActiveConnection = connections.some(
-      (conn) => conn.status === 'ACTIVE' && conn.appName?.toLowerCase().includes('google')
+      (conn) =>
+        conn.status === "ACTIVE" &&
+        conn.appName?.toLowerCase().includes("google")
     );
     setIsConnected(hasActiveConnection);
 
@@ -54,24 +57,24 @@ export default function CalendarDashboard() {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'No date';
+    if (!dateString) return "No date";
 
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
+    return date.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
   };
 
   const formatTime = (dateString) => {
-    if (!dateString) return '';
+    if (!dateString) return "";
 
     const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
       hour12: true,
     });
   };
@@ -82,9 +85,13 @@ export default function CalendarDashboard() {
         <header className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-2">
             <Calendar className="w-10 h-10 text-blue-600" />
-            <h1 className="text-4xl font-bold text-gray-900">Google Calendar</h1>
+            <h1 className="text-4xl font-bold text-gray-900">
+              Google Calendar
+            </h1>
           </div>
-          <p className="text-gray-600">Connect your Google account to view and manage your calendar events</p>
+          <p className="text-gray-600">
+            Connect your Google account to view and manage your calendar events
+          </p>
         </header>
 
         <div className="space-y-6">
@@ -107,14 +114,18 @@ export default function CalendarDashboard() {
           ) : (
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">Upcoming Events</h2>
+                <h2 className="text-2xl font-bold text-gray-800">
+                  Upcoming Events
+                </h2>
                 <button
                   onClick={fetchEvents}
                   disabled={loading}
                   className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
                 >
-                  <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                  {loading ? 'Loading...' : 'Refresh'}
+                  <RefreshCw
+                    className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+                  />
+                  {loading ? "Loading..." : "Refresh"}
                 </button>
               </div>
 
@@ -147,17 +158,23 @@ export default function CalendarDashboard() {
                         <div className="flex-shrink-0 w-16 text-center">
                           <div className="bg-blue-100 rounded-lg p-2">
                             <div className="text-xs font-semibold text-blue-600 uppercase">
-                              {formatDate(event.start?.dateTime || event.start?.date).split(',')[0]}
+                              {
+                                formatDate(
+                                  event.start?.dateTime || event.start?.date
+                                ).split(",")[0]
+                              }
                             </div>
                             <div className="text-2xl font-bold text-blue-700">
-                              {new Date(event.start?.dateTime || event.start?.date).getDate()}
+                              {new Date(
+                                event.start?.dateTime || event.start?.date
+                              ).getDate()}
                             </div>
                           </div>
                         </div>
 
                         <div className="flex-1 min-w-0">
                           <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                            {event.summary || 'Untitled Event'}
+                            {event.summary || "Untitled Event"}
                           </h3>
 
                           <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
@@ -167,9 +184,9 @@ export default function CalendarDashboard() {
                                 ? `${formatTime(event.start.dateTime)}${
                                     event.end?.dateTime
                                       ? ` - ${formatTime(event.end.dateTime)}`
-                                      : ''
+                                      : ""
                                   }`
-                                : 'All day'}
+                                : "All day"}
                             </span>
                           </div>
 

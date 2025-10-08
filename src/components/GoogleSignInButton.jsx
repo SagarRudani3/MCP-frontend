@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState } from "react";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL =
+  "https://mcp-backend-s0np.onrender.com" || "http://localhost:3000";
+console.log("%c Line:4 🍬 API_URL", "color:#b03734", API_URL);
 
-export default function GoogleSignInButton({ entityId = 'default_user' }) {
+export default function GoogleSignInButton({ entityId = "default_user" }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -11,31 +13,33 @@ export default function GoogleSignInButton({ entityId = 'default_user' }) {
       setLoading(true);
       setError(null);
 
-      console.log('[GoogleSignIn] Initiating OAuth flow...');
+      console.log("[GoogleSignIn] Initiating OAuth flow...");
 
       const response = await fetch(`${API_URL}/api/composio/initiate`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          appName: 'googlecalendar',
+          appName: "googlecalendar",
           entityId: entityId,
-          redirectUrl: `${API_URL}/api/composio/callback`
+          redirectUrl: `${API_URL}/api/composio/callback`,
+          authConfigId: "ac_F2i5s2vUTCO-",
+          userId: "default_user",
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to initiate OAuth');
+        throw new Error(errorData.message || "Failed to initiate OAuth");
       }
 
       const data = await response.json();
-      console.log('[GoogleSignIn] Redirecting to:', data.redirectUrl);
+      console.log("[GoogleSignIn] Redirecting to:", data.redirectUrl);
 
       window.location.href = data.redirectUrl;
     } catch (err) {
-      console.error('[GoogleSignIn] Error:', err);
+      console.error("[GoogleSignIn] Error:", err);
       setError(err.message);
       setLoading(false);
     }
@@ -67,7 +71,7 @@ export default function GoogleSignInButton({ entityId = 'default_user' }) {
           />
         </svg>
         <span className="font-semibold text-gray-700">
-          {loading ? 'Connecting...' : 'Sign in with Google'}
+          {loading ? "Connecting..." : "Sign in with Google"}
         </span>
       </button>
 

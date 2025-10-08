@@ -77,7 +77,7 @@ npm install
 The `.env.local` file is already created with:
 
 ```env
-VITE_API_URL=http://localhost:3000
+"https://mcp-backend-s0np.onrender.com"=http://localhost:3000
 ```
 
 ## Running the Application
@@ -112,14 +112,14 @@ The frontend will start on `http://localhost:5173`
 
 ### Backend Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/composio/connectedAccounts?entityId=xxx` | Fetch connected accounts |
-| POST | `/api/composio/initiate` | Initiate OAuth flow |
-| GET | `/api/composio/callback` | Handle OAuth callback |
-| GET | `/api/calendar/events?entityId=xxx` | Fetch calendar events |
-| DELETE | `/api/composio/disconnect?entityId=xxx&connectionId=xxx` | Disconnect account |
-| GET | `/health` | Health check |
+| Method | Endpoint                                                 | Description              |
+| ------ | -------------------------------------------------------- | ------------------------ |
+| GET    | `/api/composio/connectedAccounts?entityId=xxx`           | Fetch connected accounts |
+| POST   | `/api/composio/initiate`                                 | Initiate OAuth flow      |
+| GET    | `/api/composio/callback`                                 | Handle OAuth callback    |
+| GET    | `/api/calendar/events?entityId=xxx`                      | Fetch calendar events    |
+| DELETE | `/api/composio/disconnect?entityId=xxx&connectionId=xxx` | Disconnect account       |
+| GET    | `/health`                                                | Health check             |
 
 ## OAuth Flow
 
@@ -139,12 +139,14 @@ The application uses `default_user` as the entity ID for testing. In production,
 ## Tech Stack
 
 ### Backend
+
 - Express.js
 - Composio Core SDK (v3 API)
 - CORS enabled
 - dotenv for environment variables
 
 ### Frontend
+
 - React 18
 - React Router v6
 - Tailwind CSS
@@ -154,21 +156,25 @@ The application uses `default_user` as the entity ID for testing. In production,
 ## Troubleshooting
 
 ### Backend won't start
+
 - Verify `COMPOSIO_API_KEY` is set in `backend/.env`
 - Check that port 3000 is not in use
 - Ensure all dependencies are installed: `cd backend && npm install`
 
 ### Frontend won't connect
+
 - Verify backend is running on port 3000
-- Check `VITE_API_URL` in `.env.local`
+- Check `"https://mcp-backend-s0np.onrender.com"` in `.env.local`
 - Clear browser cache and reload
 
 ### OAuth fails
+
 - Verify Google Calendar integration is enabled in Composio dashboard
 - Check that redirect URLs match in Composio settings
 - Look at browser console and backend logs for errors
 
 ### No events showing
+
 - Ensure you have upcoming events in your Google Calendar
 - Check that the connection status is "ACTIVE"
 - Try clicking the Refresh button
@@ -197,17 +203,17 @@ npm run dev
 
 ### Backend (`backend/.env`)
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `COMPOSIO_API_KEY` | Your Composio API key | Required |
-| `PORT` | Backend server port | 3000 |
-| `FRONTEND_URL` | Frontend URL for CORS | http://localhost:5173 |
+| Variable           | Description           | Default               |
+| ------------------ | --------------------- | --------------------- |
+| `COMPOSIO_API_KEY` | Your Composio API key | Required              |
+| `PORT`             | Backend server port   | 3000                  |
+| `FRONTEND_URL`     | Frontend URL for CORS | http://localhost:5173 |
 
 ### Frontend (`.env.local`)
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `VITE_API_URL` | Backend API URL | http://localhost:3000 |
+| Variable                                  | Description     | Default               |
+| ----------------------------------------- | --------------- | --------------------- |
+| `"https://mcp-backend-s0np.onrender.com"` | Backend API URL | http://localhost:3000 |
 
 ## Production Deployment
 
@@ -220,13 +226,14 @@ npm run dev
 
 ### Frontend
 
-1. Update `VITE_API_URL` to your production backend URL
+1. Update `"https://mcp-backend-s0np.onrender.com"` to your production backend URL
 2. Build frontend: `npm run build`
 3. Deploy `dist` folder to your hosting platform
 
 ### Composio Configuration
 
 Update callback URL in Composio dashboard to match your production backend URL:
+
 ```
 https://your-backend-domain.com/api/composio/callback
 ```
@@ -246,5 +253,6 @@ MIT
 ## Support
 
 For issues with:
+
 - **Composio**: Check [Composio Documentation](https://docs.composio.dev)
 - **This implementation**: Open an issue in the repository

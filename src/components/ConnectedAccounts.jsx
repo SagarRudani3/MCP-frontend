@@ -1,9 +1,13 @@
-import { useState, useEffect } from 'react';
-import { RefreshCw, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { RefreshCw, Trash2, CheckCircle, XCircle } from "lucide-react";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL =
+  "https://mcp-backend-s0np.onrender.com" || "http://localhost:3000";
 
-export default function ConnectedAccounts({ entityId = 'default_user', onConnectionChange }) {
+export default function ConnectedAccounts({
+  entityId = "default_user",
+  onConnectionChange,
+}) {
   const [connections, setConnections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,7 +18,7 @@ export default function ConnectedAccounts({ entityId = 'default_user', onConnect
       setLoading(true);
       setError(null);
 
-      console.log('[ConnectedAccounts] Fetching connections...');
+      console.log("[ConnectedAccounts] Fetching connections...");
 
       const response = await fetch(
         `${API_URL}/api/composio/connectedAccounts?entityId=${entityId}`
@@ -22,11 +26,11 @@ export default function ConnectedAccounts({ entityId = 'default_user', onConnect
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch connections');
+        throw new Error(errorData.message || "Failed to fetch connections");
       }
 
       const data = await response.json();
-      console.log('[ConnectedAccounts] Connections:', data.connections);
+      console.log("[ConnectedAccounts] Connections:", data.connections);
 
       setConnections(data.connections || []);
 
@@ -34,7 +38,7 @@ export default function ConnectedAccounts({ entityId = 'default_user', onConnect
         onConnectionChange(data.connections || []);
       }
     } catch (err) {
-      console.error('[ConnectedAccounts] Error:', err);
+      console.error("[ConnectedAccounts] Error:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -42,31 +46,31 @@ export default function ConnectedAccounts({ entityId = 'default_user', onConnect
   };
 
   const handleDisconnect = async (connectionId) => {
-    if (!confirm('Are you sure you want to disconnect this account?')) {
+    if (!confirm("Are you sure you want to disconnect this account?")) {
       return;
     }
 
     try {
       setDisconnecting(connectionId);
 
-      console.log('[ConnectedAccounts] Disconnecting:', connectionId);
+      console.log("[ConnectedAccounts] Disconnecting:", connectionId);
 
       const response = await fetch(
         `${API_URL}/api/composio/disconnect?entityId=${entityId}&connectionId=${connectionId}`,
         {
-          method: 'DELETE',
+          method: "DELETE",
         }
       );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to disconnect account');
+        throw new Error(errorData.message || "Failed to disconnect account");
       }
 
-      console.log('[ConnectedAccounts] Disconnected successfully');
+      console.log("[ConnectedAccounts] Disconnected successfully");
       await fetchConnections();
     } catch (err) {
-      console.error('[ConnectedAccounts] Error disconnecting:', err);
+      console.error("[ConnectedAccounts] Error disconnecting:", err);
       alert(`Failed to disconnect: ${err.message}`);
     } finally {
       setDisconnecting(null);
@@ -80,7 +84,9 @@ export default function ConnectedAccounts({ entityId = 'default_user', onConnect
   if (loading) {
     return (
       <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-bold mb-4 text-gray-800">Connected Accounts</h2>
+        <h2 className="text-xl font-bold mb-4 text-gray-800">
+          Connected Accounts
+        </h2>
         <div className="flex items-center justify-center py-8">
           <RefreshCw className="w-6 h-6 animate-spin text-blue-500" />
           <span className="ml-2 text-gray-600">Loading connections...</span>
@@ -111,7 +117,9 @@ export default function ConnectedAccounts({ entityId = 'default_user', onConnect
       {connections.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           <p>No connected accounts</p>
-          <p className="text-sm mt-2">Sign in with Google to connect your calendar</p>
+          <p className="text-sm mt-2">
+            Sign in with Google to connect your calendar
+          </p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -143,10 +151,10 @@ export default function ConnectedAccounts({ entityId = 'default_user', onConnect
                 </div>
                 <div>
                   <p className="font-semibold text-gray-800">
-                    {connection.appName || 'Google Calendar'}
+                    {connection.appName || "Google Calendar"}
                   </p>
                   <div className="flex items-center gap-2 mt-1">
-                    {connection.status === 'ACTIVE' ? (
+                    {connection.status === "ACTIVE" ? (
                       <>
                         <CheckCircle className="w-4 h-4 text-green-500" />
                         <span className="text-sm text-green-600">Active</span>
@@ -155,7 +163,7 @@ export default function ConnectedAccounts({ entityId = 'default_user', onConnect
                       <>
                         <XCircle className="w-4 h-4 text-red-500" />
                         <span className="text-sm text-red-600">
-                          {connection.status || 'Inactive'}
+                          {connection.status || "Inactive"}
                         </span>
                       </>
                     )}
@@ -168,7 +176,9 @@ export default function ConnectedAccounts({ entityId = 'default_user', onConnect
                 className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
               >
                 <Trash2 className="w-4 h-4" />
-                {disconnecting === connection.id ? 'Disconnecting...' : 'Disconnect'}
+                {disconnecting === connection.id
+                  ? "Disconnecting..."
+                  : "Disconnect"}
               </button>
             </div>
           ))}
